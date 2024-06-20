@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Zaloguj</title>
+
+        <script>
+            function goBack() {
+                window.location.href = "/"
+            }
+        </script>
+    </head>
+
+    <body>
+        <form action="/login" method="POST">
+            <label for="username">Nazwa:</label>
+            <input type="text" id="username" name="username"><br><br>
+
+            <label for="password">Hasło:</label>
+            <input type="password" id="password" name="password"><br><br>
+
+            <input type="submit" value="Login">
+        </form>
+
+        <button onclick="goBack()">
+            Wróć
+        </button>
+    </body>
+</html>
