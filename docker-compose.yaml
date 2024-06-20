@@ -23,6 +23,11 @@ services:
       - ME_CONFIG_MONGODB_ADMINPASSWORD=12345
       - ME_CONFIG_BASICAUTH_USERNAME=admin
       - ME_CONFIG_BASICAUTH_PASSWORD=12345   
+  
+  frontend: 
+    image: frontend
+    ports: 
+      - 4000:4000
 
 volumes:
   mongodb-data:
