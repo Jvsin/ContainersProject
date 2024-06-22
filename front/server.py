@@ -23,7 +23,7 @@ def init_sessions(mongo):
     app.config["SESSION_MONGODB"] = mongo
     app.config["SESSION_MONGODB_DB"] = "containersDatabase"
     app.config["SESSION_MONGODB_COLLECT"] = "sessions"
-    app.permament_session_lifetime = datetime.timedelta(hours=24)
+    app.permanent_session_lifetime = datetime.timedelta(hours=24)
 
     flask_session.Session(app)
 
