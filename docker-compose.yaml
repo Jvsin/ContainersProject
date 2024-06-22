@@ -8,7 +8,7 @@ services:
     volumes:
       - mongodb-data:/data/db
     ports:
-      - 27017:27017
+      - ${MONGO_PORT}:27017
 
   mongo-express:
     image: mongo-express
@@ -25,6 +25,11 @@ services:
     image: frontend
     ports: 
       - 4000:4000
+
+  connection:
+    image: connection
+    ports:
+      - 4001:4001
 
 volumes:
   mongodb-data:
