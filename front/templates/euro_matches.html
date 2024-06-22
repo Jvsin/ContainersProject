@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EURO 2024</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .wide-column {
+            width: 10%;
+        }
+        .narrow-column {
+            width: 3%;
+        }
+        .score-column {
+            width: 2%;
+        }
+        .center-text {
+            text-align: center;
+        }
+        .right-text {
+            text-align: right; 
+        }
+        .left-text {
+            text-align: left;
+        }
+        .bold-text {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>EURO 2024 Results:</h1>
+    <table>
+        <thead>
+            <tr>
+                <th class="narrow-column">Date</th>
+                <th class="narrow-column">Round</th>
+                <th class="narrow-column">Venue Name</th>
+                <th class="narrow-column">Venue City</th>
+                <th class="wide-column bold-text right-text">Home Team</th>
+                <th class="score-column center-text"></th>
+                <th class="score-column center-text"></th>
+                <th class="wide-column bold-text left-text">Away Team</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for match in matches %}
+            <tr>
+                <td class="narrow-column">{{ match.date }}</td>
+                <td class="narrow-column">{{ match.round }}</td>
+                <td class="narrow-column">{{ match.venue_name }}</td>
+                <td class="narrow-column">{{ match.venue_city }}</td>
+                <td class="narrow-column bold-text right-text">{{ match.teams_home }}</td>
+                <td class="score-column center-text">{{ match.home_goals }}</td>
+                <td class="score-column center-text">{{ match.away_goals }}</td>
+                <td class="narrow-column bold-text left-text">{{ match.teams_away }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

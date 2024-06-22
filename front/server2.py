@@ -109,6 +109,26 @@ def show_premier_league():
     print(data)
     return flask.render_template("premier_league.html", standings=data)
 
+
+@app.route("/euro_matches", methods=["GET"])
+def show_euro_matches():
+    
+    try: 
+        response = requests.get(
+            f"{api_uri}/euro_matches",
+        )
+        response.raise_for_status() 
+        matches = response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return jsonify({"error": "Failed to fetch data from API"}), 500
+    except ValueError as e:
+        print(f"JSON decode failed: {e}")
+        return jsonify({"error": "Invalid JSON received from API"}), 500
+    
+    print(matches)
+    return flask.render_template("euro_matches.html", matches=matches)
+
 if __name__ == "__main__":
     mongo = get_mongo_client()
     init_sessions(mongo)

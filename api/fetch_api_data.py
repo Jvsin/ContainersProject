@@ -1,6 +1,6 @@
 import http.client
 import json
-
+from datetime import datetime
 import time
 from flask import Flask, jsonify
 
@@ -58,9 +58,54 @@ def get_standings():
     return jsonify(data)
 
 
+def format_date(date_string):
+    date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S%z')
+    
+    formatted_date = date_object.strftime('%d %m %Y %H:%M')
+    
+    return formatted_date
+
+def get_euro_matches():
+    conn.request("GET", "/v3/fixtures?league=4&season=2024&from=2024-06-14&to=2024-07-26", headers=headers)
+    res = conn.getresponse()
+    data = json.loads(res.read())
+
+    result = []
+    for match in data['response']:
+        date = match['fixture']['date']
+        round = match['league']['round']
+        venue_name = match['fixture']['venue']['name']
+        venue_city = match['fixture']['venue']['city']
+        status = match['fixture']['status']['long']
+        teams_home = match['teams']['home']['name']
+        teams_away = match['teams']['away']['name']
+        home_goals = match['goals']['home']
+        away_goals = match['goals']['away']
+        if (home_goals == None and away_goals == None):
+            home_goals = 0
+            away_goals = 0
+        result.append({
+            'date': format_date(date),
+            'round': round,
+            'venue_name': venue_name,
+            'venue_city': venue_city,
+            'status': status,
+            'teams_home': teams_home,
+            'teams_away': teams_away,
+            'home_goals': home_goals,
+            'away_goals': away_goals
+        })
+    # print(result)
+    return result
+
+@app.route('/euro_matches', methods=["GET"])
+def euro_matches():
+    data = get_euro_matches()
+    print(data)
+    return jsonify(data)
+
+
 if __name__ == "__main__":
     app.run(port=4002, host="0.0.0.0")
 
-# get_results_pl()
-# get_standings_pl()
 
