@@ -1,15 +1,17 @@
 import datetime
 import uuid
 
+from flask import Flask, jsonify
 import flask
 import flask_session
 import requests
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-app = flask.Flask("__name__", template_folder="home/front/templates")
+app = Flask("__name__", template_folder="home/front/templates")
 
 connection_uri = "http://connection:4001"
+api_uri = "http://api:4002"
 
 def get_mongo_client():
     uri = "mongodb://admin:12345@mongodb"
@@ -34,6 +36,7 @@ def has_registered():
         json={"username": username, "password": password},
     )
     if response.ok:
+        flask.session["is_logged_in"] = True
         return True
     
     return False
@@ -49,6 +52,7 @@ def has_logged_in():
     )
 
     if response.ok:
+        flask.session["is_logged_in"] = True
         return True
     return False
 
@@ -58,6 +62,9 @@ def go_to_main_page():
 
 @app.route("/")
 def index():
+    if flask.session.get("is_logged_in", False):
+        return flask.render_template("main_page.html")
+    
     return flask.render_template("index.html")
 
 
@@ -83,6 +90,24 @@ def logout():
 
     return flask.redirect("/")
 
+@app.route("/premier_league", methods=["GET"])
+def show_premier_league():
+    
+    try: 
+        response = requests.get(
+            f"{api_uri}/premier_league",
+        )
+        response.raise_for_status()  # Raise an HTTPError for bad responses
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return jsonify({"error": "Failed to fetch data from API"}), 500
+    except ValueError as e:
+        print(f"JSON decode failed: {e}")
+        return jsonify({"error": "Invalid JSON received from API"}), 500
+    
+    print(data)
+    return flask.render_template("premier_league.html", standings=data)
 
 if __name__ == "__main__":
     mongo = get_mongo_client()

@@ -30,7 +30,12 @@ services:
     image: connection
     ports:
       - 4001:4001
-
+  
+  api: 
+    image: api
+    ports: 
+      - 4002:4002
+      
 volumes:
   mongodb-data:
     driver: local

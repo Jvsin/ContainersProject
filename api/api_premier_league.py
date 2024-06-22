@@ -64,6 +64,7 @@ def getTableStandings():
             goalDifference = place['goalsDiff']
             print(f"{rank}. {team} {goalDifference} PTS: {points}")
         print()
+    print(data)
 
 getMatches()
 getTableStandings()

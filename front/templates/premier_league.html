@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Premier League Standings</title>
+</head>
+<body>
+    <h1>Premier League Standings</h1>
+    <table border="1">
+        <tr>
+            <th>Rank</th>
+            <th>Team</th>
+            <th>Points</th>
+            <th>Goal Difference</th>
+        </tr>
+        {% for team in standings %}
+        <tr>
+            <td>{{ team.rank }}</td>
+            <td>{{ team.team }}</td>
+            <td>{{ team.points }}</td>
+            <td>{{ team.goalDifference }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -53,15 +53,15 @@ def login():
         password = data["password"]
 
     except:
-        return "Error", 400
+        return "Error", 401
 
     user = find_user(username, password)
 
     if not user:
-        return "Error", 400
+        return "Error", 402
 
     if user["password"] != password:
-        return "Error", 400
+        return "Error", 403
 
     return "Ok", 200
 
