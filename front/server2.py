@@ -1,10 +1,10 @@
 import datetime
 import uuid
 
-from flask import Flask, jsonify, request
 import flask
 import flask_session
 import requests
+from flask import Flask, jsonify, request
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -13,10 +13,12 @@ app = Flask("__name__", template_folder="home/front/templates")
 connection_uri = "http://connection:4001"
 api_uri = "http://api:4002"
 
+
 def get_mongo_client():
     uri = "mongodb://admin:12345@mongodb"
-    mongo = MongoClient(uri, server_api=ServerApi("1"))    
+    mongo = MongoClient(uri, server_api=ServerApi("1"))
     return mongo
+
 
 def init_sessions(mongo):
     app.config["SESSION_TYPE"] = "mongodb"
@@ -26,6 +28,7 @@ def init_sessions(mongo):
     app.permanent_session_lifetime = datetime.timedelta(hours=24)
 
     flask_session.Session(app)
+
 
 def has_registered():
     username = flask.request.form.get("username", "admin")
@@ -37,8 +40,9 @@ def has_registered():
     )
     if response.ok:
         flask.session["is_logged_in"] = True
+        flask.session["username"] = username
         return True
-    
+
     return False
 
 
@@ -53,18 +57,22 @@ def has_logged_in():
 
     if response.ok:
         flask.session["is_logged_in"] = True
+        flask.session["username"] = username
         return True
+
     return False
+
 
 @app.route("/main_page")
 def go_to_main_page():
     return flask.render_template("main_page.html")
 
+
 @app.route("/")
 def index():
     if flask.session.get("is_logged_in", False):
         return flask.render_template("main_page.html")
-    
+
     return flask.render_template("index.html")
 
 
@@ -90,14 +98,15 @@ def logout():
 
     return flask.redirect("/")
 
+
 @app.route("/premier_league", methods=["GET"])
 def show_premier_league():
-    
-    try: 
+
+    try:
         response = requests.get(
             f"{api_uri}/premier_league",
         )
-        response.raise_for_status()  # Raise an HTTPError for bad responses
+        response.raise_for_status()
         data = response.json()
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
@@ -105,19 +114,18 @@ def show_premier_league():
     except ValueError as e:
         print(f"JSON decode failed: {e}")
         return jsonify({"error": "Invalid JSON received from API"}), 500
-    
-    print(data)
+
     return flask.render_template("premier_league.html", standings=data)
 
 
 @app.route("/euro_matches", methods=["GET"])
 def show_euro_matches():
-    
-    try: 
+
+    try:
         response = requests.get(
             f"{api_uri}/euro_matches",
         )
-        response.raise_for_status() 
+        response.raise_for_status()
         matches = response.json()
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
@@ -125,19 +133,20 @@ def show_euro_matches():
     except ValueError as e:
         print(f"JSON decode failed: {e}")
         return jsonify({"error": "Invalid JSON received from API"}), 500
-    
-    print(matches)
+
     return flask.render_template("euro_matches.html", matches=matches)
+
 
 #####################################################################
 
-@app.route('/bet_matches', methods=["GET"])
+
+@app.route("/bet_matches", methods=["GET"])
 def set_bets():
-    try: 
+    try:
         response = requests.get(
             f"{api_uri}/euro_matches",
         )
-        response.raise_for_status() 
+        response.raise_for_status()
         matches = response.json()
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
@@ -145,41 +154,38 @@ def set_bets():
     except ValueError as e:
         print(f"JSON decode failed: {e}")
         return jsonify({"error": "Invalid JSON received from API"}), 500
-    
-    print(matches)
+
     return flask.render_template("bet_matches.html", matches=matches)
 
 
-@app.route('/submit_scores', methods=["POST", "GET"])
-def submit_scores(): 
-    print("wchodze tutaj w submit scores ")
-    # username = request.form['username']
-    match_index = flask.request.form.get("match_index", 0)
+@app.route("/submit_scores", methods=["POST", "GET"])
+def submit_scores():
+    username = flask.session.get("username", "")
+    match_index = int(flask.request.form.get("match_index", 0))
     home_team = flask.request.form.get("home_team", "")
     away_team = flask.request.form.get("away_team", "")
     home_goals = int(flask.request.form.get("home_goals", 0))
     away_goals = int(flask.request.form.get("away_goals", 0))
-    
+
     bet = {
-        'username': "user1",
-        'match_index': int(match_index),
-        'home_team': home_team,
-        'away_team': away_team,
-        'home_goals': home_goals,
-        'away_goals': away_goals
+        "username": username,
+        "match_index": match_index,
+        "home_team": home_team,
+        "away_team": away_team,
+        "home_goals": home_goals,
+        "away_goals": away_goals,
     }
-    print(bet)
 
     response = requests.post(
         f"{connection_uri}/push-to-mongo",
         json=bet,
     )
 
-    if response.ok:
-            return jsonify({'message': 'Bet updated successfully!'}), 200
-    else:
-        return jsonify({'message': 'Failed to update bet'}), 400
-    
+    if response.status_code == 400:
+        print(response.text)
+
+    return flask.redirect("/bet_matches")
+
 
 if __name__ == "__main__":
     mongo = get_mongo_client()
