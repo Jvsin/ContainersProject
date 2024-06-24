@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Typuj</title>
+    <style>
+        .match-container {
+            border: 1px solid black;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .match-header {
+            font-weight: bold;
+        }
+        .match-field {
+            margin-bottom: 10px;
+        }
+        .score-input {
+            width: 50px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .wide-column {
+            width: 10%;
+        }
+        .narrow-column {
+            width: 3%;
+        }
+        .score-column {
+            width: 5%;
+        }
+        .center-text {
+            text-align: center;
+        }
+        .right-text {
+            text-align: right; 
+        }
+        .left-text {
+            text-align: left;
+        }
+        .bold-text {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wytupuj mecze EURO:</h1>
+
+    <div>
+        {% for match in matches %}
+        <div class="match-container">
+            <form action="/submit_scores" method="POST"> 
+                <div class="match-field match-header">NR Meczu: {{ match.index }}</div>
+                <div class="match-field">Data: {{ match.date }}</div>
+                <div class="match-field">Runda: {{ match.round }}</div>
+                <div  class="match-field bold-text right-text">Home Team: {{ match.teams_home }}</div>
+                <div class="match-field center-text">
+                    Home Goals: <input type="number" class="score-input" id="home_goals" name="home_goals" min="0" autocomplete="off">
+                </div>
+                <div class="match-field center-text">
+                    Away Goals: <input type="number" class="score-input" id="away_goals" name="away_goals" min="0" autocomplete="off">
+                </div>
+                <div  class="match-field bold-text left-text">Away Team: {{ match.teams_away }}</div>
+                <!-- <input type="submit" value="Submit"> -->
+                <div class="match-field center-text">
+                    <input type="hidden" name="match_index" value="{{ match.index }}">
+                    <input type="hidden" name="home_team" value="{{ match.teams_home }}">
+                    <input type="hidden" name="away_team" value="{{ match.teams_away }}">
+                    <input type="submit" value="Submit">
+                </div>
+            </form>
+            
+        </div>
+        {% endfor %}
+    </div>
+    <!-- <table>
+        <thead>
+            <tr>
+                <th class="narrow-column">Date</th>
+                <th class="narrow-column">Round</th>
+                <th class="narrow-column">Venue Name</th>
+                <th class="narrow-column">Venue City</th>
+                <th class="wide-column bold-text right-text">Home Team</th>
+                <th class="score-column center-text">Home Goals</th>
+                <th class="score-column center-text">Away Goals</th>
+                <th class="wide-column bold-text left-text">Away Team</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for match in matches %}
+            <tr>
+                <form action="/submit_scores", method="POST"> 
+                    <td name="match_index" class="narrow-column">{{ match.index }}</td>
+                    <td class="narrow-column">{{ match.date }}</td>
+                    <td class="narrow-column">{{ match.round }}</td>
+                    <td name="home_team" class="narrow-column bold-text right-text">{{ match.teams_home }}</td>
+                    <input type="number" id="home_goals" name="home_goals" min="0" autocomplete="off">
+                    <input type="number" id="away_goals" name="away_goals" min="0" autocomplete="off">
+                    <td name="away_team" class="narrow-column bold-text left-text">{{ match.teams_away }}</td>
+                    <input type="submit" value="Submit">
+                </form>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table> -->
+
+    
+</body>
+</html>

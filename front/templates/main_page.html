@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Game</title>
+        <title>Main Page</title>
 
         <script>
             function logout() {
@@ -12,6 +12,9 @@
             }
             function euro_matches() {
                 window.location.href = "/euro_matches"
+            }
+            function bet_games() {
+                window.location.href = "/bet_matches"
             }
         </script>
     </head>
@@ -24,7 +27,9 @@
         <button onclick="euro_matches()">
             EURO 2024 
         </button>
-        Gówno ehhe
+        <button onclick="bet_games()">
+            Typuj mecze EURO
+        </button>
         <button onclick="logout()">
             Wyloguj 
         </button>

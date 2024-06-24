@@ -1,7 +1,7 @@
 import flask
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-
+from flask import Flask, request, redirect, url_for, render_template, jsonify
 app = flask.Flask("__name__")
 
 collections = {}
@@ -12,6 +12,7 @@ def set_mongo_client():
     mongo = MongoClient(uri, server_api=ServerApi("1"))
 
     collections["users"] = mongo.containersDatabase.users
+    collections["bets"] = mongo.containersDatabase.bets
 
 def find_user(username, password):
     query = {"username": username, "password": password}
@@ -64,6 +65,55 @@ def login():
         return "Error", 403
 
     return "Ok", 200
+
+################################################
+
+# @app.route('/submit_scores', methods=['POST'])
+def submit_scores():
+    print("wchodze tutaj")
+    # username = request.form['username']
+    match_index = request.form['match_index']
+    home_team = request.form['home_team']
+    away_team = request.form['away_team']
+    home_goals = int(request.form['home_goals'])
+    away_goals = int(request.form['away_goals'])
+    
+    bet = {
+        'username': "user1",
+        'match_index': int(match_index),
+        'home_team': home_team,
+        'away_team': away_team,
+        'home_goals': home_goals,
+        'away_goals': away_goals
+    }
+    print(bet)
+
+    collections["bets"].update_one(
+        {'username': "user1", 'match_index': match_index},
+        {'$set': bet},
+        upsert=True
+    )
+    
+    collections["bets"].insert_one(bet)
+    
+    return "OK", 200
+
+
+@app.route("/push-to-mongo", methods=["POST"])
+def push_to_mongo():
+    print("wchodze w connection")
+    try:
+        data = flask.request.get_json(force=True)
+        print(data)
+        # query = {"_id": data["match_index"]}
+        # new_element = {"$push": {"data": data}}
+
+        # collections["bets"].update_one(query, new_element)
+
+        return "OK", 200
+
+    except:
+        return "Error", 400
 
 if __name__ == "__main__":
     set_mongo_client()

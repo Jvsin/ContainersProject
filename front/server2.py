@@ -1,7 +1,7 @@
 import datetime
 import uuid
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import flask
 import flask_session
 import requests
@@ -128,6 +128,58 @@ def show_euro_matches():
     
     print(matches)
     return flask.render_template("euro_matches.html", matches=matches)
+
+#####################################################################
+
+@app.route('/bet_matches', methods=["GET"])
+def set_bets():
+    try: 
+        response = requests.get(
+            f"{api_uri}/euro_matches",
+        )
+        response.raise_for_status() 
+        matches = response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return jsonify({"error": "Failed to fetch data from API"}), 500
+    except ValueError as e:
+        print(f"JSON decode failed: {e}")
+        return jsonify({"error": "Invalid JSON received from API"}), 500
+    
+    print(matches)
+    return flask.render_template("bet_matches.html", matches=matches)
+
+
+@app.route('/submit_scores', methods=["POST", "GET"])
+def submit_scores(): 
+    print("wchodze tutaj w submit scores ")
+    # username = request.form['username']
+    match_index = flask.request.form.get("match_index", 0)
+    home_team = flask.request.form.get("home_team", "")
+    away_team = flask.request.form.get("away_team", "")
+    home_goals = int(flask.request.form.get("home_goals", 0))
+    away_goals = int(flask.request.form.get("away_goals", 0))
+    
+    bet = {
+        'username': "user1",
+        'match_index': int(match_index),
+        'home_team': home_team,
+        'away_team': away_team,
+        'home_goals': home_goals,
+        'away_goals': away_goals
+    }
+    print(bet)
+
+    response = requests.post(
+        f"{connection_uri}/push-to-mongo",
+        json=bet,
+    )
+
+    if response.ok:
+            return jsonify({'message': 'Bet updated successfully!'}), 200
+    else:
+        return jsonify({'message': 'Failed to update bet'}), 400
+    
 
 if __name__ == "__main__":
     mongo = get_mongo_client()

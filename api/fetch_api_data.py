@@ -45,9 +45,6 @@ def get_standings_pl():
             'points': points,
             'goalDifference': goal_diff
         })
-    # json_result = json.dumps(result, indent=4)
-        
-    # print(json_result)
     print(results)
     return results
 
@@ -71,7 +68,9 @@ def get_euro_matches():
     data = json.loads(res.read())
 
     result = []
+    counter = 0
     for match in data['response']:
+        index = counter
         date = match['fixture']['date']
         round = match['league']['round']
         venue_name = match['fixture']['venue']['name']
@@ -85,6 +84,7 @@ def get_euro_matches():
             home_goals = 0
             away_goals = 0
         result.append({
+            'index': index,
             'date': format_date(date),
             'round': round,
             'venue_name': venue_name,
@@ -95,6 +95,7 @@ def get_euro_matches():
             'home_goals': home_goals,
             'away_goals': away_goals
         })
+        counter += 1
     # print(result)
     return result
 
@@ -104,6 +105,9 @@ def euro_matches():
     print(data)
     return jsonify(data)
 
+###############################################################3
+
+# @app.route('/bet_matches', methods=["GET"])
 
 if __name__ == "__main__":
     app.run(port=4002, host="0.0.0.0")
