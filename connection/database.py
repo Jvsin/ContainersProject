@@ -1,10 +1,12 @@
 import flask
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from flask import Flask, request, redirect, url_for, render_template, jsonify
+
 app = flask.Flask("__name__")
 
 collections = {}
+
 
 def set_mongo_client():
     uri = "mongodb://admin:12345@mongodb"
@@ -14,11 +16,13 @@ def set_mongo_client():
     collections["users"] = mongo.containersDatabase.users
     collections["bets"] = mongo.containersDatabase.bets
 
+
 def find_user(username, password):
     query = {"username": username, "password": password}
     document = collections["users"].find_one(query)
-    
+
     return document
+
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -36,7 +40,7 @@ def register():
     if user:
         return "Error", 400
 
-    collections["users"].insert_one( 
+    collections["users"].insert_one(
         {
             "username": username,
             "password": password,
@@ -44,6 +48,7 @@ def register():
     )
 
     return "Ok", 200
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -66,54 +71,51 @@ def login():
 
     return "Ok", 200
 
+
 ################################################
+
 
 # @app.route('/submit_scores', methods=['POST'])
 def submit_scores():
-    print("wchodze tutaj")
     # username = request.form['username']
-    match_index = request.form['match_index']
-    home_team = request.form['home_team']
-    away_team = request.form['away_team']
-    home_goals = int(request.form['home_goals'])
-    away_goals = int(request.form['away_goals'])
-    
+    match_index = request.form["match_index"]
+    home_team = request.form["home_team"]
+    away_team = request.form["away_team"]
+    home_goals = int(request.form["home_goals"])
+    away_goals = int(request.form["away_goals"])
+
     bet = {
-        'username': "user1",
-        'match_index': int(match_index),
-        'home_team': home_team,
-        'away_team': away_team,
-        'home_goals': home_goals,
-        'away_goals': away_goals
+        "username": "user1",
+        "match_index": int(match_index),
+        "home_team": home_team,
+        "away_team": away_team,
+        "home_goals": home_goals,
+        "away_goals": away_goals,
     }
-    print(bet)
 
     collections["bets"].update_one(
-        {'username': "user1", 'match_index': match_index},
-        {'$set': bet},
-        upsert=True
+        {"username": "user1", "match_index": match_index}, {"$set": bet}, upsert=True
     )
-    
+
     collections["bets"].insert_one(bet)
-    
+
     return "OK", 200
 
 
 @app.route("/push-to-mongo", methods=["POST"])
 def push_to_mongo():
-    print("wchodze w connection")
     try:
         data = flask.request.get_json(force=True)
-        print(data)
-        # query = {"_id": data["match_index"]}
-        # new_element = {"$push": {"data": data}}
 
-        # collections["bets"].update_one(query, new_element)
+        collections["bets"].update_one(
+            {"match_index": data["match_index"]}, {"$set": data}, upsert=True
+        )
 
         return "OK", 200
 
-    except:
-        return "Error", 400
+    except Exception as e:
+        return str(e), 400
+
 
 if __name__ == "__main__":
     set_mongo_client()
