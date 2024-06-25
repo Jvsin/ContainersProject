@@ -2,6 +2,7 @@ import flask
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from bson.json_util import dumps
 
 app = flask.Flask("__name__")
 
@@ -115,7 +116,15 @@ def push_to_mongo():
 
     except Exception as e:
         return str(e), 400
-
+    
+####################################################################3
+@app.route("/get-bets", methods=["POST","GET"])
+def load_bets():
+    documents = collections["bets"].find()
+    print(documents)
+    json_documents = dumps(documents)
+    return json_documents
+ 
 
 if __name__ == "__main__":
     set_mongo_client()

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sprawdź typy</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .wide-column {
+            width: 10%;
+        }
+        .narrow-column {
+            width: 3%;
+        }
+        .score-column {
+            width: 2%;
+        }
+        .center-text {
+            text-align: center;
+        }
+        .right-text {
+            text-align: right; 
+        }
+        .left-text {
+            text-align: left;
+        }
+        .bold-text {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Twoje typy: </h1>
+    <table>
+        <thead>
+            <tr>
+                <th class="score-column center-text"> ID </th>
+                <th class="narrow-column bold-text right-text">Home Team</th>
+                <th class="score-column center-text"></th>
+                <th class="score-column center-text"></th>
+                <th class="narrow-column bold-text left-text">Away Team</th>
+                <th class="score-column center-text">Wynik:</th>
+                <th class="score-column center-text">Wytypowano</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bet in bets %}
+            <tr>
+                <td class="score-column">{{ bet.match_index }}</td>
+                <td class="narrow-column bold-text right-text">{{ bet.home_team }}</td>
+                <td class="score-column center-text">{{ bet.home_goals }}</td>
+                <td class="score-column center-text">{{ bet.away_goals }}</td>
+                <td class="narrow-column bold-text left-text">{{ bet.away_team }}</td>
+                <td class="score-column center-text">{{ matches[bet.match_index].home_goals }} - {{ matches[bet.match_index].away_goals }}</td>
+                <td class="narrow-column bold-text left-text">{{ bet.result }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

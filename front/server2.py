@@ -186,6 +186,39 @@ def submit_scores():
 
     return flask.redirect("/bet_matches")
 
+@app.route("/check_bets", methods=["POST", "GET"])
+def route_check_bets():
+    response = requests.get(
+        f"{api_uri}/euro_matches",
+    )
+    response.raise_for_status()
+    matches = response.json()
+
+    print(matches)
+
+    response = requests.get(
+        f"{connection_uri}/get-bets"
+    )
+    response.raise_for_status()
+    bets = response.json()
+
+    for bet in bets:
+        match = next((m for m in matches if m['index'] == bet['match_index']), None)
+        if match:
+            bet_result = bet['home_goals'] - bet['away_goals']
+            match_result = match['home_goals'] - match['away_goals']
+
+            if bet['home_goals'] == match['home_goals'] and bet['away_goals'] == match['away_goals']:
+                bet['result'] = "PRAWIDŁOWO"
+            elif bet_result == match_result:
+                bet['result'] = "WYNIK"
+            else:
+                bet['result'] = "NIE PRAWIDŁOWO"
+        else:
+            bet['result'] = "Brak danych o meczu"
+
+    return flask.render_template("check_bets.html", matches=matches, bets=bets)
+
 
 if __name__ == "__main__":
     mongo = get_mongo_client()
